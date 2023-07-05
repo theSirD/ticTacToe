@@ -24,8 +24,15 @@ body {
     grid-column: 2/3;
     grid-row: 2/3;
     aspect-ratio: 1/1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 5px;
 }
 
+.board-cell {
+    background-color: rgba(219, 45, 45, 0.756);
+}
 
 .first {
     grid-row: 2/3;
