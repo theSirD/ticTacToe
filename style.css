@@ -32,6 +32,10 @@ body {
 
 .board-cell {
     background-color: rgba(219, 45, 45, 0.756);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4em;
 }
 
 .first {
