@@ -15,7 +15,6 @@ const playerFactory = (mark) => {
             
             const cellClickHandler = (e) => {
                 const cell = e.target;
-                console.log(cell.classList[1])
                 const firstIndex = cell.classList[1][5];
                 const secondIndex = cell.classList[1][6];
                
@@ -27,16 +26,19 @@ const playerFactory = (mark) => {
             });
         });
     };
-    return {mark, showPoints, playRound, getAPoint, setPointsToZero};
+    return {mark, showPoints, playRound, getAPoint, setPointsToZero, points};
 }
 
 const game = (() => {
+    
+
     const gameBoard = (() => {
         const gameBoardCells = document.querySelectorAll(".board-cell");
         let board =[[2, 2, 2],
                 [2, 2, 2],
                 [2, 2, 2]];
-        let winner;
+        
+        
         const renderField = () => {
             const gameBoardCells = document.querySelectorAll(".board-cell");
             for (let i = 0; i < 3; i++) {
@@ -80,13 +82,15 @@ const game = (() => {
                     playerO.getAPoint();
                     clearField();
                     renderScore();
-                    break;
+                    numberOfTurn = 0;
+                    return;
                 }
                 if (board[i].join("") === "111") {
                     playerX.getAPoint();
                     clearField();
                     renderScore();
-                    break;
+                    numberOfTurn = 0;
+                    return;
                 }
             }
 
@@ -95,13 +99,15 @@ const game = (() => {
                     playerO.getAPoint();
                     clearField();
                     renderScore();
-                    break;
+                    numberOfTurn = 0;
+                    return;
                 }
                 if ([board[0][i], board[1][i], board[2][i]].join("") === "111") {
                     playerX.getAPoint();
                     clearField();
                     renderScore();
-                    break;
+                    numberOfTurn = 0;
+                    return;
                 }
             }
 
@@ -109,67 +115,95 @@ const game = (() => {
                 playerO.getAPoint();
                 clearField();
                 renderScore();
+                numberOfTurn = 0;
+                return
             }
             if ([board[0][0], board[1][1], board[2][2]].join("") === "111") {
                 playerX.getAPoint();
                 clearField();
                 renderScore();
+                numberOfTurn = 0;
+                return
             }
             if ([board[0][2], board[1][1], board[2][0]].join("") === "000") {
                 playerO.getAPoint();
                 clearField();
                 renderScore();
+                numberOfTurn = 0;
+                return
             }
             if ([board[0][2], board[1][1], board[2][0]].join("") === "111") {
                 playerX.getAPoint();
                 clearField();
                 renderScore();
+                numberOfTurn = 0;
+                return
             }
 
-           
+            let fl = true;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[i][j] ===2) {
+                        fl = false;
+                        break;
+                    }
+                    
+                }
+            }
+            if (fl) {
+                clearField();
+            }
+
+
+
 
             checkIfGameIsOver();
         }
 
+
         const checkIfGameIsOver = () => {
-            if (playerO.showPoints === 3) {
+            if (playerO.showPoints() === 3) {
                 displayWinner("First");
+                playerO.setPointsToZero();
+                playerX.setPointsToZero();
+                renderScore();
                 gameBoard.clearField();
             }
-            if (playerX.showPoints === 3) {
+            if (playerX.showPoints() === 3) {
                 displayWinner("Second");
+                playerO.setPointsToZero();
+                playerX.setPointsToZero();
+                renderScore();
                 gameBoard.clearField();
             }
-            
-            
         }
 
     
         return {clearField, markCell, checkIfRoundIsOver};
     })();
     
+    let numberOfTurn = 0;
     const playerO = playerFactory("O");
     const playerX = playerFactory("X");
 
     const startGame = () => {
-        playerO.setPointsToZero();
-        playerX.setPointsToZero();
-        renderScore();
         const startButton = document.querySelector("button[type='button']");
         startButton.addEventListener("click", async (e) => {
+            playerO.setPointsToZero();
+            playerX.setPointsToZero();
+            renderScore();
             gameBoard.clearField();
-            let i = 0;
             while ((playerO.showPoints() !== 3) && (playerX.showPoints() !== 3)) {
-                if (i % 2 === 0) {
+                if (numberOfTurn % 2 === 0) {
                     const cellToMark = await playerX.playRound(); 
                     gameBoard.markCell(cellToMark);
+                    ++numberOfTurn;
                     gameBoard.checkIfRoundIsOver();
-                    ++i;
                 } else {
                     const cellToMark = await playerO.playRound(); 
                     gameBoard.markCell(cellToMark);
+                    ++numberOfTurn;
                     gameBoard.checkIfRoundIsOver();
-                    ++i;
                 }
             }
         });
@@ -181,15 +215,15 @@ const game = (() => {
     
     const renderScore = () => {
         const score = document.querySelectorAll(".player-info");
-        const scoreO = score[0];
-        scoreO.innerHTML = "";
-        scoreO.insertAdjacentHTML("beforeend", "<h1>FIRST</h1>");
-        scoreO.insertAdjacentHTML("beforeend", `<h1 class='score'>${playerO.showPoints()}</h1>`);
+        const playerOInfo = score[0];
+        playerOInfo.innerHTML = "";
+        playerOInfo.insertAdjacentHTML("beforeend", "<h1>FIRST</h1>");
+        playerOInfo.insertAdjacentHTML("beforeend", `<h1 class='score'>${playerO.showPoints()}</h1>`);
 
-        const scoreX = score[1];
-        scoreX.innerHTML = "";
-        scoreX.insertAdjacentHTML("beforeend", "<h1>SECOND</h1>");
-        scoreX.insertAdjacentHTML("beforeend", `<h1 class='score'>${playerX.showPoints()}</h1>`);
+        const playerXInfo = score[1];
+        playerXInfo.innerHTML = "";
+        playerXInfo.insertAdjacentHTML("beforeend", "<h1>SECOND</h1>");
+        playerXInfo.insertAdjacentHTML("beforeend", `<h1 class='score'>${playerX.showPoints()}</h1>`);
     }
 
     return {startGame};  
